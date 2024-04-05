@@ -16,7 +16,7 @@ final public class Card {
 
     private String generateCardNumber(int n) {
 
-        long randomNumber = new SecureRandom().nextLong();
+        long randomNumber = Math.abs(new SecureRandom().nextLong());
         return String.format("%016d", randomNumber).substring(0, n);
 
     }
@@ -32,13 +32,13 @@ final public class Card {
     }
 
     public Card() {
-        card_number=generateCardNumber(15);
+        card_number=generateCardNumber(16);
         creation_date=new Date();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(creation_date);
         calendar.add(Calendar.YEAR, 5);
         expiration_date = calendar.getTime();
-        cvv=generateCardNumber(2);
+        cvv=generateCardNumber(3);
         pin="0000";
 
     }

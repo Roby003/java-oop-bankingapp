@@ -31,7 +31,9 @@ public class BankingApp {
             }
             System.out.println("enter index");
             int index = scanner.nextInt();
-            if (index < 0 || index >= customerList.size()) {
+            scanner.nextLine();
+
+        if (index < 0 || index >= customerList.size()) {
                 System.out.println("index out of range");
                 return null;
             }
@@ -52,9 +54,9 @@ public class BankingApp {
 
             int choice;
             choice = scanner.nextInt();
+            scanner.nextLine();
             if (choice == 1) {
                 System.out.println("Enter Name");
-                scanner.next();
                 String name = scanner.nextLine();
                 System.out.println("Enter Phone");
                 String phone = scanner.nextLine();
@@ -88,6 +90,7 @@ public class BankingApp {
                     System.out.println("2. View Account");
                     System.out.println("3. Exit");
                     choice=scanner.nextInt();
+                    scanner.nextLine();
                     if(choice==1)
                     {
                         AccountType account_type=inputAccountType();
@@ -101,11 +104,15 @@ public class BankingApp {
                         {
                             System.out.println("enter interest rate");
                             int interest_rate=scanner.nextInt();
+                            scanner.nextLine();
+
                             current_customer.addAccount(account_type,interest_rate,0);
                         }
                         else {
                             System.out.println("enter credit limit");
                             int credit_limit=scanner.nextInt();
+                            scanner.nextLine();
+
                             current_customer.addAccount(account_type,0,credit_limit);
 
                         }
@@ -133,7 +140,9 @@ public class BankingApp {
                                 System.out.println("2. View Balance");
                                 System.out.println("3. Exit");
                                 int account_choice=scanner.nextInt();
-                                 if(account instanceof CardAccount)
+                                scanner.nextLine();
+
+                                if(account instanceof CardAccount)
                                  {
                                      if (account_choice==0)
                                      {
@@ -145,6 +154,8 @@ public class BankingApp {
                                             System.out.println("2.Remove Card");
 
                                             int card_choice=scanner.nextInt();
+                                            scanner.nextLine();
+
                                             if(card_choice==0)
                                             {
                                                 ((CardAccount) account).printCards();
@@ -233,6 +244,8 @@ public class BankingApp {
 
         }
         int choice=scanner.nextInt();
+        scanner.nextLine();
+
         if(choice<0 || choice>=account.cards.size())
         {
             return null;
@@ -264,6 +277,8 @@ public class BankingApp {
 
         }
         int choice=scanner.nextInt();
+        scanner.nextLine();
+
         if(choice<0 || choice>TransactionType.values().length)
             return null;
         else
@@ -279,6 +294,8 @@ public class BankingApp {
             System.out.println(i+" " +customer.accounts.get(i).toString());
         }
         int choice=scanner.nextInt();
+        scanner.nextLine();
+
         if( choice<0 || choice>=customer.accounts.size())
         {
 
@@ -298,6 +315,8 @@ public class BankingApp {
 
         }
         int choice=scanner.nextInt();
+        scanner.nextLine();
+
         if (choice <0|| choice>=AccountType.values().length)
         {
             System.out.println("invalid choice");
