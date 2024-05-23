@@ -1,33 +1,60 @@
 package main.models.account;
 
 import main.models.transaction.*;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.sql.Date;
 
+import java.util.*;
 
 
 public abstract class Account {
 
-    final String no_account;
-    final Date creation_date;
-    double balance;
-    float interest_rate;
-    List<Transaction> transaction_history;
+    protected
+        final String no_account;
+        final Date creation_date;
+        double balance;
+        float interest_rate;
+        int customerId;
+        List<Transaction> transaction_history;
 
-    public Account( float interest_rate) {
+
+    public Account( int customerId,float interest_rate) {
 
         no_account= String.valueOf(UUID.randomUUID());
-        creation_date=new Date();
+        creation_date=Date.valueOf(LocalDate.now());
         transaction_history= new ArrayList<>();
         balance=0;
         this.interest_rate = interest_rate;
+        this.customerId=customerId;
 
     }
-    private void processTransaction(@NotNull TransactionType type, double amount, Account target_account)
+    public Account (ResultSet in) throws SQLException {
+        customerId = in.getInt("customer_id");
+        no_account = in.getString("no_account");
+        creation_date = in.getDate("creation_date");
+        balance = in.getDouble("balance");
+        interest_rate = in.getFloat("interest_rate");
+        transaction_history = new ArrayList<>();
+    }
+    public void addTransaction(ResultSet in) throws SQLException {
+        TransactionType type = TransactionType.valueOf(in.getString("type"));
+        switch (type) {
+            case DEPOSIT:
+                transaction_history.add(new Deposit(in));
+                break;
+            case WITHDRAW:
+                transaction_history.add(new Withdraw(in));
+                break;
+            case TRANSFER:
+                transaction_history.add(new Transfer(in));
+                break;
+        }
+
+    }
+    private void processTransaction( TransactionType type, double amount, Account target_account)
     {
        switch (type)
         {
@@ -55,7 +82,7 @@ public abstract class Account {
 
                 }
                 else
-                {
+                {  
                     this.balance-=amount;
                     target_account.balance+=amount;
                     System.out.println("transfer successful");
@@ -65,37 +92,49 @@ public abstract class Account {
         }
     }
 
-    public void makeTransaction(@NotNull TransactionType type, Account target_account, double amount, String description )
+    public Transaction makeTransaction(TransactionType type, Account target_account, double amount, String description )
     {
 
-
+        Transaction transaction = null;
         switch (type)
         {
             case DEPOSIT:
-
-                transaction_history.add(new Deposit(new Date(),amount, this.no_account));
+                transaction = new Deposit(no_account,Date.valueOf(LocalDate.now()),amount,this.no_account);
+                transaction_history.add(transaction);
                 processTransaction(type,amount,target_account);
                 break;
 
             case TRANSFER:
                 if (target_account != null) {
-                    transaction_history.add(new Transfer(new Date(),amount,this.no_account, target_account.no_account,description));
+                    transaction= new Transfer(no_account,Date.valueOf(LocalDate.now()),amount,this.no_account, target_account.no_account,description);
+                    transaction_history.add(transaction);
                     processTransaction(type, amount, target_account);
-        } else {
-            System.out.println("Invalid target account for transfer");
-        }
-            break;
+                } else {
+                    System.out.println("Invalid target account for transfer");
+                }
+                 break;
 
             case WITHDRAW:
-                transaction_history.add(new Withdraw(new Date(),amount,this.no_account));
+                transaction=new Withdraw(no_account,Date.valueOf(LocalDate.now()),amount,this.no_account);
+                transaction_history.add(transaction);
                 processTransaction(type,amount,target_account);
                 break;
 
-
         }
-
+        return transaction;
     }
 
+
+
+   
+
+    public String getNo_account() {
+        return no_account;
+    }
+
+    public double getBalance() {
+        return balance;
+    }
     @Override
     public String toString() {
         return "{" +
@@ -105,22 +144,17 @@ public abstract class Account {
                 ", interest_rate=" + interest_rate +
                 '}';
     }
-
-    public void applyInterest() {
-        double interest = calculateInterest();
-        balance += interest;
-        System.out.println("Interest applied: $" + interest);
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Account account = (Account) o;
+        return Double.compare(balance, account.balance) == 0 && Float.compare(interest_rate, account.interest_rate) == 0 && Objects.equals(no_account, account.no_account) && Objects.equals(creation_date, account.creation_date) && Objects.equals(transaction_history, account.transaction_history);
     }
 
-    private double calculateInterest() {
-        return balance * (interest_rate / 100.0);
+    @Override
+    public int hashCode() {
+        return Objects.hash(no_account, creation_date, balance, interest_rate, transaction_history);
     }
 
-    public String getNo_account() {
-        return no_account;
-    }
-
-    public double getBalance() {
-        return balance;
-    }
 }

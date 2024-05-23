@@ -1,7 +1,24 @@
 package main.models.account;
 
+import javax.naming.spi.DirStateFactory.Result;
+import java.sql.SQLException;
+import java.sql.ResultSet;
+
 public class CreditAccount extends CardAccount{
-    double credit_limit;
+   private double credit_limit;
+
+   
+    public CreditAccount(int customerId,double credit_limit) {
+        super(customerId,0);
+        this.credit_limit = credit_limit;
+        super.balance=credit_limit;
+
+
+    }
+    public CreditAccount(ResultSet in) throws SQLException{
+        super(in);
+        this.credit_limit = in.getDouble("credit_limit");
+    }
 
     @Override
     public String toString() {
@@ -14,12 +31,7 @@ public class CreditAccount extends CardAccount{
                 '}';
     }
 
-    public CreditAccount(double credit_limit) {
-        super(0);
-        this.credit_limit = credit_limit;
-        super.balance=credit_limit;
-
-
+    public double getCreditLimit() {
+        return credit_limit;
     }
-
 }
